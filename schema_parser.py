@@ -22,6 +22,8 @@ class Lexer:
         self.content = content
         self.index = 0
         self.token = ''
+        self.delimiters = ["\n", " "]
+        self.operators = ['(', ')', '/', '*', '+', '-', '=']
 
     def grab_char(self):
         char = self.content[self.index]
@@ -41,6 +43,7 @@ class Lexer:
         self.token = ""
         return tmp
 
+# find all blanks
 # find all delimiters
 
     def get_next_token(self):
@@ -62,11 +65,11 @@ class Lexer:
                     return self.yield_token()
                 else:
                     continue
-            elif self.look_char(1) == ';':
-                return self.yield_token()
-            elif char == ';':
-                self.next_char()
-                return ';'
+#            elif self.look_char(1) == ';':
+#                return self.yield_token()
+#            elif char == ';':
+#                self.next_char()
+#                return ';'
             elif char == ' ':
                 self.next_char()
                 if self.token:
