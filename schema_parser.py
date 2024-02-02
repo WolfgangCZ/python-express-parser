@@ -43,7 +43,7 @@ class Lexer:
         self.token = ""
         return tmp
 
-# find all blanks
+# find all operators
 # find all delimiters
 
     def get_next_token(self):
