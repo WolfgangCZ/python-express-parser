@@ -9,8 +9,8 @@ TYPE exchange_structure_identifier = STRING;
 END_TYPE;
 
 ENTITY file_description;
-  description          : LIST [1:?] OF STRING (256) ;
-  implementation_level : STRING (256) ;
+  description          :LIST[1:?] OF STRING (256) ;
+  implementation_level :STRING(256);
 END_ENTITY;
 
 ENTITY file_name;
