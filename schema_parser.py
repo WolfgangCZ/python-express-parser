@@ -11,7 +11,7 @@ sys.path.append(dirName)
 
 
 
-exp_file_path = f"{dirName}\\schema\\ap242ed3.exp"
+exp_file_path = f"{dirName}\\schema\\basic_schema.exp"
 
 with open(exp_file_path, "r", encoding="utf-8") as file:
     file_content = file.read()
@@ -99,9 +99,8 @@ class TokenParser:
     def get_tokens(self):
         pass
 
-    def 
-    
-    
+
+
 lexer = Lexer(file_content)
 print(file_content)
 counter = 1
@@ -109,9 +108,10 @@ output = open("output.exp", "w", encoding="utf-8")
 for token in lexer:
     output.writelines(f"{counter}: {token}\n")
     counter += 1
+
+# find entities and put them in container
+# analyze each token
 # diferentiate between initialization and reference
-# space ' '
-# delimiter ';'
 # common objects? like LINE, VERTEX, etc
 # r_values key
 # l_values value
