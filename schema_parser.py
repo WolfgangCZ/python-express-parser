@@ -95,9 +95,22 @@ class Lexer:
 class TokenParser:
     def __init__(self, tokens: list):
         self.tokens = tokens
+        self.parsed_tokens = {}
 
-    def get_tokens(self):
-        pass
+    def parse_token(self):
+        remaining_tokens = []
+        for token in range(len(self.tokens)):
+            if token == 'ENTITY':
+                pass
+            else:
+                self.parse_token()
+            
+            
+# classify token and evaluate ending condition
+# add it to dictionary as key
+# jump inside the key
+
+
 
 
 
