@@ -1,6 +1,5 @@
-import os
 import sys
-import time
+import os
 
 
 baseName = os.path.basename(__file__)
@@ -9,12 +8,20 @@ print('basename:    ', baseName)
 print('dirname:     ', dirName)
 sys.path.append(dirName)
 
-
-
+exp_file_path = f"{dirName}\\schema\\ap242ed3.exp"
 exp_file_path = f"{dirName}\\schema\\basic_schema.exp"
 
 with open(exp_file_path, "r", encoding="utf-8") as file:
     file_content = file.read()
+
+
+class DataChecker():
+    def __init__(self):
+        pass
+
+    def check_entity(self, content: list):
+        if content[-1] != ';':
+            print(f"warning, sequence {content} doesnt have semicolon!")
 
 
 class Lexer:
@@ -24,6 +31,8 @@ class Lexer:
         self.token = ''
         self.delimiters = "\n "
         self.operators = "()/*+-=!{}[|]<>?':;,.%$&#@"
+        self.token_list = []
+        self.parse_content()
 
     def grab_char(self):
         char = self.content[self.index]
@@ -82,6 +91,11 @@ class Lexer:
                 self.next_char()
         return None
 
+    def parse_content(self):
+        for token in self:
+            self.token_list.append(token)
+        return self.token_list
+
     def __iter__(self):
         return self
 
@@ -92,35 +106,62 @@ class Lexer:
         else:
             return token
 
+
 class TokenParser:
     def __init__(self, tokens: list):
         self.tokens = tokens
-        self.parsed_tokens = {}
+        self.map = {}
+        self.data_checker = DataChecker()
+        self.parse_token(0)
 
-    def parse_token(self):
-        remaining_tokens = []
-        for token in range(len(self.tokens)):
-            if token == 'ENTITY':
-                pass
-            else:
-                self.parse_token()
-            
-            
+    def parse_token(self, index):
+        while index < len(self.tokens):
+            if self.tokens[index] == "ENTITY":
+                print(f"looking up stuff from index {index} which is {self.tokens[index]}")
+                lenght = self.lookup_end(index, "ENTITY", "END_ENTITY")
+                entity_segment = self.tokens[index: index + lenght + 1]
+                print(f"entity_segment {entity_segment}")
+                self.map.update(self.parse_entity(entity_segment))
+                print(f"continuing at index {index} which is {self.tokens[index]}")
+                index += lenght - 1
+            index += 1
+
+    def lookup_end(self, index: int, start: str, end: str):
+        guard = 0
+        lenght = 0
+        while True:
+            if self.tokens[index] == start:
+                guard += 1
+            elif self.tokens[index] == end:
+                guard -= 1
+            if guard == 0:
+                lenght += 1
+                break
+            lenght += 1
+            index += 1
+        return lenght
+
+    def parse_entity(self, entity_segment: list):
+        self.data_checker.check_entity(entity_segment)
+        entity_name = entity_segment[1]
+        entity_map = {entity_name: []}
+        for token in entity_segment[3:]:
+            entity_map[entity_name].append(token)
+        # print(f"entity_map {entity_map}")
+        return entity_map
+
 # classify token and evaluate ending condition
 # add it to dictionary as key
 # jump inside the key
 
 
-
-
-
 lexer = Lexer(file_content)
+token_list = lexer.token_list
+token_parser = TokenParser(token_list)
 print(file_content)
-counter = 1
-output = open("output.exp", "w", encoding="utf-8")
-for token in lexer:
-    output.writelines(f"{counter}: {token}\n")
-    counter += 1
+for name in token_parser.map.keys():
+    print(f"entity_name: {name}")
+
 
 # find entities and put them in container
 # analyze each token
