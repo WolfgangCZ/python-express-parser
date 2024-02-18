@@ -8,8 +8,8 @@ print('basename:    ', baseName)
 print('dirname:     ', dirName)
 sys.path.append(dirName)
 
-exp_file_path = f"{dirName}\\schema\\ap242ed3.exp"
 exp_file_path = f"{dirName}\\schema\\basic_schema.exp"
+exp_file_path = f"{dirName}\\schema\\ap242ed3.exp"
 
 with open(exp_file_path, "r", encoding="utf-8") as file:
     file_content = file.read()
@@ -106,33 +106,42 @@ class Lexer:
         else:
             return token
 
+express_objects = ["TYPE", "ENTITY", "FUNCTION", "RULE", "CONSTANT"]
+
 
 class TokenParser:
-    def __init__(self, tokens: list):
-        self.tokens = tokens
+    def __init__(self):
+        self.tokens = []
         self.map = {}
+        self.leftovers = []
         self.data_checker = DataChecker()
-        self.parse_token(0)
 
-    def parse_token(self, index):
-        while index < len(self.tokens):
-            if self.tokens[index] == "ENTITY":
-                print(f"looking up stuff from index {index} which is {self.tokens[index]}")
-                lenght = self.lookup_end(index, "ENTITY", "END_ENTITY")
-                entity_segment = self.tokens[index: index + lenght + 1]
-                print(f"entity_segment {entity_segment}")
-                self.map.update(self.parse_entity(entity_segment))
-                print(f"continuing at index {index} which is {self.tokens[index]}")
-                index += lenght - 1
+    def parse_tokens(self, map, tokens):
+        self.map = map
+        index = 0
+        while index < len(tokens):
+            known_token = False
+            for exp_obj in express_objects:
+                if tokens[index] == exp_obj:
+                    lenght = self.lookup_end(index, tokens, exp_obj, f"END_{exp_obj}")
+                    self.parse_tokens(map, tokens[index: index + lenght])
+                    entity_segment = tokens[index: index + lenght + 1]
+                    map.update(self.parse_entity(entity_segment))
+                    index += lenght
+                    known_token = True
+            if not known_token:
+                self.leftovers.append({index: tokens[index]})
             index += 1
+            print(f"iteration {index}")
+        return map
 
-    def lookup_end(self, index: int, start: str, end: str):
+    def lookup_end(self, index: int, tokens: list, start: str, end: str):
         guard = 0
         lenght = 0
         while True:
-            if self.tokens[index] == start:
+            if tokens[index] == start:
                 guard += 1
-            elif self.tokens[index] == end:
+            elif tokens[index] == end:
                 guard -= 1
             if guard == 0:
                 lenght += 1
@@ -155,13 +164,16 @@ class TokenParser:
 # jump inside the key
 
 
+map = {}
 lexer = Lexer(file_content)
 token_list = lexer.token_list
-token_parser = TokenParser(token_list)
-print(file_content)
-for name in token_parser.map.keys():
-    print(f"entity_name: {name}")
+token_parser = TokenParser()
+map = token_parser.parse_tokens(map, token_list)
 
+
+print(file_content)
+for token in token_parser.leftovers:
+    print(f"token_name: {token}")
 
 # find entities and put them in container
 # analyze each token

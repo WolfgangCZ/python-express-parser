@@ -23,6 +23,41 @@ ENTITY file_name;
   authorization        : STRING (256) ;
 END_ENTITY;
 
+TYPE tolerance_method_definition = SELECT
+  (limits_and_fits,
+   tolerance_value);
+END_TYPE;
+
+FUNCTION unique_in_product_definition(item : representative_shape_representation) : BOOLEAN;
+LOCAL
+  local_p_d : SET OF product_definition   := [];
+  local_s_r : SET OF shape_representation := [];
+  i         : INTEGER;
+  j         : INTEGER;
+END_LOCAL;
+  -- find product_definitions represented by the input
+  -- representative_shape_representation
+  local_p_d := using_product_definition_of_shape_representation(item);
+  -- ERROR
+  IF (SIZEOF(local_p_d) <> 1)
+  THEN
+    RETURN(FALSE);
+  ELSE
+    REPEAT i := 1 TO HIINDEX(local_p_d);
+      local_s_r := find_shape_representation_of_product_definition(local_p_d[i]);
+      REPEAT j := 1 TO HIINDEX(local_s_r);
+        IF (('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.REPRESENTATIVE_SHAPE_REPRESENTATION' IN
+             TYPEOF(local_s_r[j])) AND
+            (local_s_r[j] :<>: item))
+        THEN
+          RETURN(FALSE);
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+  END_IF;
+  RETURN(TRUE);
+END_FUNCTION;
+
 TYPE time_stamp_text = STRING(256);
 END_TYPE;
 
