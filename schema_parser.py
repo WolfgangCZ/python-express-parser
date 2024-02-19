@@ -1,6 +1,7 @@
 import sys
 import os
 
+from logger import logger
 
 baseName = os.path.basename(__file__)
 dirName = os.path.dirname(__file__)
@@ -8,12 +9,12 @@ print('basename:    ', baseName)
 print('dirname:     ', dirName)
 sys.path.append(dirName)
 
-exp_file_path = f"{dirName}\\schema\\basic_schema.exp"
 exp_file_path = f"{dirName}\\schema\\ap242ed3.exp"
+exp_file_path = f"{dirName}\\schema\\basic_schema.exp"
 
 with open(exp_file_path, "r", encoding="utf-8") as file:
     file_content = file.read()
-
+    file.close()
 
 class DataChecker():
     def __init__(self):
@@ -21,7 +22,7 @@ class DataChecker():
 
     def check_entity(self, content: list):
         if content[-1] != ';':
-            print(f"warning, sequence {content} doesnt have semicolon!")
+            print(f", sequence {content} doesnt have semicolon!")
 
 
 class Lexer:
@@ -106,6 +107,7 @@ class Lexer:
         else:
             return token
 
+
 express_objects = ["TYPE", "ENTITY", "FUNCTION", "RULE", "CONSTANT"]
 
 
@@ -136,6 +138,10 @@ class TokenParser:
         return map
 
     def lookup_end(self, index: int, tokens: list, start: str, end: str):
+        print(f"tokens {tokens}")
+        logger.debug(f"tokens {tokens}")
+        logger.debug(f"start {start}")
+        logger.debug(f"end {end}")
         guard = 0
         lenght = 0
         while True:
@@ -173,7 +179,7 @@ map = token_parser.parse_tokens(map, token_list)
 
 print(file_content)
 for token in token_parser.leftovers:
-    print(f"token_name: {token}")
+    logger.deb(f"token_name: {token}")
 
 # find entities and put them in container
 # analyze each token
