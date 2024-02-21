@@ -9,6 +9,10 @@ class Logger():
         self.print_console = print_console
         self.write_log = write_log
         self.target_file = target_file
+        try:
+            self.file = open(self.target_file, "w", encoding='UTF-8')
+        except:
+            self.warning("Couldnt open/create log file")
 
     def debug(self, message: str) -> None:
         if self.print_console:
@@ -35,12 +39,9 @@ class Logger():
             print(self.err + message)
         self.content.append(self.err + message)
         raise exc_text
-
     def __del__(self):
-        if self.write_log:
-            with open(self.target_file, "w", encoding='UTF-8') as f:
-                f.writelines(self.content)
-                f.close()
+        self.file.writelines(self.content)
+        self.file.close()
 
 TARGET_FILE = "log.txt"
 logger = Logger(TARGET_FILE, True, True)

@@ -119,13 +119,13 @@ class TokenParser:
         self.data_checker = DataChecker()
 
     def parse_tokens(self, map, tokens):
-        self.map = map
         index = 0
         while index < len(tokens):
             known_token = False
             for exp_obj in express_objects:
                 if tokens[index] == exp_obj:
                     lenght = self.lookup_end(index, tokens, exp_obj, f"END_{exp_obj}")
+                    logger.debug(f"lenght {lenght}")
                     self.parse_tokens(map, tokens[index: index + lenght])
                     entity_segment = tokens[index: index + lenght + 1]
                     map.update(self.parse_entity(entity_segment))
@@ -134,11 +134,9 @@ class TokenParser:
             if not known_token:
                 self.leftovers.append({index: tokens[index]})
             index += 1
-            print(f"iteration {index}")
         return map
 
     def lookup_end(self, index: int, tokens: list, start: str, end: str):
-        print(f"tokens {tokens}")
         logger.debug(f"tokens {tokens}")
         logger.debug(f"start {start}")
         logger.debug(f"end {end}")
@@ -162,7 +160,6 @@ class TokenParser:
         entity_map = {entity_name: []}
         for token in entity_segment[3:]:
             entity_map[entity_name].append(token)
-        # print(f"entity_map {entity_map}")
         return entity_map
 
 # classify token and evaluate ending condition
@@ -179,7 +176,7 @@ map = token_parser.parse_tokens(map, token_list)
 
 print(file_content)
 for token in token_parser.leftovers:
-    logger.deb(f"token_name: {token}")
+    logger.debug(f"token_name: {token}")
 
 # find entities and put them in container
 # analyze each token
